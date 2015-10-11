@@ -1,0 +1,48 @@
+body {
+	padding: 20px;
+}
+
+svg {
+	overflow: visible;
+}
+
+h1 {
+	text-align: center;
+	font-family: "Helvetica";
+	font-weight: lighter;
+	text-transform: uppercase;
+	text-shadow: 0 2px 3px rgba(0,0,0, 0.25);
+}
+
+.females {
+	fill: #993392;
+}
+
+.males {
+	fill: #07466D;
+}
+
+g .label {
+	text-anchor: middle;
+	alignment-baseline: middle;
+	font-family: "Helvetica";
+	font-size: 10px;
+	text-transform: uppercase;
+	fill: black;
+}
+
+.axis path.domain {
+	fill: none;
+	stroke: #333;
+	stroke-width: 1px;
+}
+
+.axis g.tick line {
+	stroke: #333;
+	stroke-width: 1px;
+}
+
+.axis g.tick text {
+	font-family: Helvetica;
+	font-size: 10px;
+}

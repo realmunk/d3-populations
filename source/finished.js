@@ -1,78 +1,90 @@
-var populations = Population(Resource.Computas).genderDistributionByAge(),
-    scaleX = d3.scale.linear();
+var populations = [Pop().genderDist(), Pop("Stortinget").genderDist()];
 
-    scaleY = d3.scale.ordinal()
-        .domain(populations.map(function (cx) {
-            return cx.name;
-        }));
+var svg = d3.select("#population")
+	.append("svg");
 
-    xAxis = d3.svg.axis()
-        .scale(scaleX)
-        .tickFormat(function (d) {
-            return Math.abs(d) + "%";
-        }),
-    yAxis = d3.svg.axis()
-        .scale(scaleY)
-        .orient('left'),
-    svg = d3.select('#population')
-        .append('svg'),
-    x = svg.append('g')
-        .classed('x axis', true),
-    y = svg.append('g')
-        .classed('y axis', true);
+var xGroup = svg.append("g")
+	.classed("x axis", true);
 
-representations = populations.map(function (pop) {
-    var node = svg.append('g');
+var yGroup = svg.append("g")
+	.classed("y axis", true);
 
-    node.append('rect')
-        .classed('females', true);
+var nodes = populations.map(function (population) {
+	var node = svg.append('g')
+		.classed('population', true);
 
-    node.append('rect')
-        .classed('males', true);
-    
-    return { 
-        node: node, 
-        data: pop 
-    };  
-})
+	node.append('rect')
+		.classed('females', true)
 
+	node.append('rect')
+		.classed('males', true)
 
-function updateGraph (representations) {
+	return { node: node, data: population};
+});
 
-    width = svg.node().offsetWidth;
-    height = svg.node().offsetHeight;
+function drawGraph (nodes) {
+	
+	var width = svg.node().offsetWidth,
+		height = svg.node().offsetHeight;
 
-    scaleX.domain([-100, 100])  
-        .range([0, width]),
-    
-    scaleY.rangeRoundBands([0, height]);
+	var scaleX = d3.scale.linear()
+		.domain([
+			-d3.max(populations.map(function (d) {
+				return d.males;
+			}).concat(populations.map(function (d) { 
+				return d.females;
+			}))), 
+			d3.max(populations.map(function (d) {
+				return d.males;
+			}).concat(populations.map(function (d) { 
+				return d.females;
+			})))
+		])
+		.range([0, width]),
 
-    x.attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
+		scaleY = d3.scale.ordinal()
+			.domain(populations.map(function (p) {
+				return p.name;
+			}))
+			.rangeRoundBands([0, height], 0.1, 0),
 
-    y.call(yAxis);
+		xAxis = d3.svg.axis()
+			.scale(scaleX)
+			.tickSize(-height - 1)
+			.tickFormat(function (d) { return Math.abs(d); })
+			.ticks(15),
 
-    representations.forEach(function (rep) {
+		yAxis = d3.svg.axis()
+			.scale(scaleY)
+			.tickFormat(function (d) { /*return new Date().getFullYear() - d*/ return d; })
+			.tickSize(-width + 1)
+			.orient("left");
 
-        var repHeight = scaleY.rangeBand();
+	xGroup.attr("transform", "translate(0, " + height + ")")
+		.call(xAxis);
 
-        rep.node.attr('transform', 'translate(0,' + scaleY(rep.data.name) + ')');
+	yGroup.call(yAxis);
 
-        rep.node.select('.females')
-            .attr("width", scaleX(rep.data.females) - scaleX(0))
-            .attr('x', scaleX(-rep.data.females))
-            .attr('height', repHeight);
+	nodes.forEach(function (n) {
+		var h = scaleY.rangeBand();
+		n.node.attr('transform', 'translate(0, ' + scaleY(n.data.name) + ')')
 
-        rep.node.select('.males')
-            .attr("width", scaleX(rep.data.males) - scaleX(0))
-            .attr('x', scaleX(0))
-            .attr('height', repHeight);
-    
-    });
+		n.node.select('.females')
+			.attr("width", scaleX(n.data.females) - scaleX(0))
+			.attr('x', scaleX(-n.data.females))
+			.attr("height", h);
+
+		n.node.select('.males')
+			.attr("width", scaleX(n.data.males) - scaleX(0))
+			.attr('x', scaleX(0))
+			.attr("height", h);
+	});
+
+}
+ 
+function draw () {
+	drawGraph(nodes);
 }
 
-window.onresize = function () {
-    updateGraph(representations);
-};
-
-updateGraph(representations);
+window.onload = draw;
+window.onresize = draw;

@@ -1,20 +1,36 @@
-h1 {
-	text-transform: uppercase;
-	font-family: 'Helvetica';
-	text-align: left;
+body {
+	font-family: "Segoe UI Light";
+	padding: 0 60px;
 }
 
-#population svg {
+svg {
 	width: 100%;
-	height: 200px;
+	height: 337px;
+	overflow: visible;
+	shape-rendering: crispEdges;
+}
+
+.females {
+	fill: #993392;
 }
 
 .males {
 	fill: #07466D;
 }
 
-.females {
-	fill: #993392;
+.male-label, .female-label {
+	font-family: Helvetica;
+
+}
+
+.male-label {
+	text-anchor: start;
+}
+
+.female-label {
+	text-anchor: end;
+	
+
 }
 
 .axis path.domain {
@@ -23,10 +39,21 @@ h1 {
 	stroke-width: 1px;
 }
 
-.axis g.tick line {
-	stroke: #333;
-	stroke-width: 1px;
+.y.axis g.tick line {
+	stroke: #F1F1F1;
+	stroke-width: 1;
 }
+
+.x.axis g.tick line {
+	stroke: #F1F1F1;
+	stroke-width: 1;
+}
+
+.x.axis g.tick:hover line {
+	stroke: #333;
+	stroke-width: 1;
+}
+
 
 .axis g.tick text {
 	font-family: Helvetica;

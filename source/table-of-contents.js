@@ -1,6 +1,9 @@
 ///////////////////////////////////////////////////////////////
 //                                                           //
-//             datavisualisering med d3.js                   //                              
+//             datavisualisering med d3.js                   //
+//                                                           //
+//              PART 0: @INTRODUCTION                        //
+//                                                           //
 //                                                           //
 //              PART 1: @LIGHTWEIGHT graph                   //
 //                      1. SVG                               //

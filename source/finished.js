@@ -1,95 +1,78 @@
-"use strict";
+var populations = Population(Resource.Computas).genderDistributionByAge(),
+    scaleX = d3.scale.linear();
 
-var width = "100%",
-	height = 768,
+    scaleY = d3.scale.ordinal()
+        .domain(populations.map(function (cx) {
+            return cx.name;
+        }));
 
-    populations = [],
-    svg;
+    xAxis = d3.svg.axis()
+        .scale(scaleX)
+        .tickFormat(function (d) {
+            return Math.abs(d) + "%";
+        }),
+    yAxis = d3.svg.axis()
+        .scale(scaleY)
+        .orient('left'),
+    svg = d3.select('#population')
+        .append('svg'),
+    x = svg.append('g')
+        .classed('x axis', true),
+    y = svg.append('g')
+        .classed('y axis', true);
 
-const LIMIT = 80;
+representations = populations.map(function (pop) {
+    var node = svg.append('g');
 
-function setGraph (populations) {
-    var svg = d3.select("#females-males")
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height);
+    node.append('rect')
+        .classed('females', true);
 
-    var drawArea = svg.append('g')
-        .attr("id", "draw-area")
-        .attr("transform", "translate("+ (svg.node().clientWidth / 2) + ",0)");
+    node.append('rect')
+        .classed('males', true);
+    
+    return { 
+        node: node, 
+        data: pop 
+    };  
+})
 
-    populations.forEach((p) => {
-        let pop = drawArea.append('g').attr('id', p.name);
 
-        pop.append("rect")
-            .classed('males', true)
-            .attr("width", width);
+function updateGraph (representations) {
 
-        pop.append("rect")
-            .classed('females', true);
+    width = svg.node().offsetWidth;
+    height = svg.node().offsetHeight;
 
-        pop.append('text')
-            .classed('label', true)
-            .text(p.label);
+    scaleX.domain([-100, 100])  
+        .range([0, width]),
+    
+    scaleY.rangeRoundBands([0, height]);
+
+    x.attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    y.call(yAxis);
+
+    representations.forEach(function (rep) {
+
+        var repHeight = scaleY.rangeBand();
+
+        rep.node.attr('transform', 'translate(0,' + scaleY(rep.data.name) + ')');
+
+        rep.node.select('.females')
+            .attr("width", scaleX(rep.data.females) - scaleX(0))
+            .attr('x', scaleX(-rep.data.females))
+            .attr('height', repHeight);
+
+        rep.node.select('.males')
+            .attr("width", scaleX(rep.data.males) - scaleX(0))
+            .attr('x', scaleX(0))
+            .attr('height', repHeight);
+    
     });
-
-    drawArea.append('g')
-        .classed('axis', true)
-        .attr("transform", "translate(0, " + height + ")");
-
-    return svg;
 }
 
-function drawGraph (svg, populations) {
-    var scale = d3.scale
-		.linear()
-		.range([-svg.node().clientWidth / 2, svg.node().clientWidth / 2])
-        .domain([-LIMIT, LIMIT]);
-        //.domain([-100, 100]);
-
-    var scaleY = d3.scale.ordinal()
-        .domain(populations.map((p) => { return p.name; }))
-        .rangeRoundBands([0, height], 0.02, 0);
-
-    populations.forEach((p) => {
-        d3.select('#' + p.name + '')
-            .attr("transform", "translate(0, " + scaleY(p.name) + ")");
-
-        d3.select('#' + p.name + ' .females')
-            .attr('height', scaleY.rangeBand())
-            .attr('width', scale(p.females))
-            .attr('x', scale(-p.females));
-
-        d3.select('#' + p.name + ' .males')
-            .attr('height', scaleY.rangeBand())
-            .attr('width', scale(p.males));
-
-        d3.select('#' + p.name + ' text')
-            .attr("x", scale(-LIMIT))
-            .attr("y", scaleY.rangeBand() / 2);
-    });
-
-    var axis = d3.svg.axis().scale(scale)
-        .ticks(12)
-        .tickFormat(function (t) {
-            //return Math.abs(t) + '%';
-            return Math.abs(t);
-        })
-        .orient('bottom');
-
-    d3.select('g.axis')
-        .call(axis);
-};
-
-populations = Population(Resource.Computas).updateGenders(Resource.Genders).genderDistributionByAge();
-
-//populations.push(Population(Resource.Stortinget).updateGenders(Resource.Genders).genderDistribution());
-
-console.log(populations);
-
-svg = setGraph(populations);
-drawGraph(svg, populations);
-
 window.onresize = function () {
-    drawGraph(svg, populations);
+    updateGraph(representations);
 };
+
+updateGraph(representations);

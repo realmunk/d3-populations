@@ -11,11 +11,11 @@ svg {
 }
 
 .females {
-	fill: #993392;
+	fill: #991494;
 }
 
 .males {
-	fill: #07466D;
+	fill: #333;
 }
 
 .male-label, .female-label {
@@ -29,8 +29,6 @@ svg {
 
 .female-label {
 	text-anchor: end;
-	
-
 }
 
 .axis path.domain {
